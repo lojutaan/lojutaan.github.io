@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bypassing Geo Blocks With Mullvad Proxies</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link type="application/atom+xml" rel="alternate" href="https://blog.loju.fi/feed.xml" title="Loju" />
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Bypassing Geo Blocks With Mullvad Proxies | Loju</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Bypassing Geo Blocks With Mullvad Proxies" />
+<meta name="author" content="Niko" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting" />
+<meta property="og:description" content="Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting" />
+<link rel="canonical" href="https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/" />
+<meta property="og:url" content="https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/" />
+<meta property="og:site_name" content="Loju" />
+<meta property="og:image" content="https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-02T14:28:00+03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg" />
+<meta property="twitter:title" content="Bypassing Geo Blocks With Mullvad Proxies" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Niko"},"dateModified":"2022-04-02T14:28:00+03:00","datePublished":"2022-04-02T14:28:00+03:00","description":"Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting","headline":"Bypassing Geo Blocks With Mullvad Proxies","image":"https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/"},"url":"https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  </head>
+  <body>
+    <div class="container">
+        <header>
+    <nav class="main-nav" aria-label="main navigation">
+        <a href="/">Home</a>
+    </nav>
+</header>
+        <main>
+            <article>
+    <header>
+        <h1>Bypassing Geo Blocks With Mullvad Proxies</h1>
+        <span>02 Apr 2022 - Niko</a></span>
+    </header>
+    <section class="blog-post">
+        <p>I recently found out about <a href="https://mullvad.net/en/help/socks5-proxy/">Mullvad SOCKS5 proxies</a>. You can connect to any wireguard node and then use SOCKS5 proxy inside that VPN tunnel to exit from different node. You can only use proxies while VPN is turned on. It seems that Mullvad has achieved this by creating a mesh that allows their every node to connect directly to each other through a VPN. This is a really useful feature! Let’s say you want to visit a website that is only allowed in UK and visit a US based website that has blocked all EU connections due to GDPR while living in Finland. You could switch VPN servers based on which website you want to connect to but that is quite cumbersome. You also might not want to route all traffic through a VPN. This is how I use Mullvad proxies and proxy auto-config (PAC) to bypass geo-blocking.</p>
+
+<h2 id="wireguard">Wireguard</h2>
+
+<p>First we need to setup wireguard connection as proxies are only accessible via internal Mullvad ip addresses. Go to <a href="https://mullvad.net/en/account/#/wireguard-config/">Mullvad wireguard config page</a> and download your configuration. By default wireguard will route all your connections through Mullvad servers. I only want to route my proxies through Mullvad so I’ll edit <code class="language-plaintext highlighter-rouge">AllowedIPs</code> line to <code class="language-plaintext highlighter-rouge">AllowedIPs = 10.124.0.0/23, 10.64.0.1/32</code> and remove <code class="language-plaintext highlighter-rouge">DNS</code> line completely. All proxy nodes have ip address in network <code class="language-plaintext highlighter-rouge">10.124.0.0/23</code> except the node you’re connected to with wireguard which has ip of <code class="language-plaintext highlighter-rouge">10.64.0.1/32</code>.</p>
+
+<h2 id="proxy-auto-config-pac">Proxy auto-config (PAC)</h2>
+
+<p>There are browser extensions that you can use instead of PAC. I went with PAC as I want to use the same rules on all my devices. PAC file is just a javascript function that determines which proxy should the request be directed to. You can find more information about PAC from <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file">MDN</a>.</p>
+
+<p>Now you want to choose which connections to route through Mullvad. You can find Mullvad proxy addresses from <a href="https://mullvad.net/en/servers/">servers page</a>. Click the wireguard server you want and you should be able to see <code class="language-plaintext highlighter-rouge">socks5 proxy address</code> column. For example <code class="language-plaintext highlighter-rouge">us101-wireguard</code> node has SOCKS5 service running on <code class="language-plaintext highlighter-rouge">us101-wg.socks5.mullvad.net:1080</code> address. Here is an example of PAC file:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">FindProxyForURL</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="nx">host</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">USA_NY</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">SOCKS5 us101-wg.socks5.mullvad.net:1080</span><span class="dl">"</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">UK_LDN</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">SOCKS5 gb11-wg.socks5.mullvad.net:1080</span><span class="dl">"</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">FI_HEL</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">SOCKS5 10.64.0.1:1080</span><span class="dl">"</span><span class="p">;</span> <span class="c1">// I'm connected to Helsinki wireguard node</span>
+  <span class="kd">var</span> <span class="nx">ES_MAD</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">SOCKS5 es1-wg.socks5.mullvad.net:1080</span><span class="dl">"</span><span class="p">;</span>
+
+  <span class="c1">// NEW YORK</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">dnsDomainIs</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ip-lookup.net</span><span class="dl">"</span><span class="p">))</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">USA_NY</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// LONDON</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">dnsDomainIs</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">whatismyipaddress.com</span><span class="dl">"</span><span class="p">))</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">UK_LDN</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// HELSINKI</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">dnsDomainIs</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">whatismyip.com</span><span class="dl">"</span><span class="p">)</span> <span class="o">||</span>
+      <span class="nx">dnsDomainIs</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">yle.fi</span><span class="dl">"</span><span class="p">)</span> <span class="o">||</span>
+      <span class="nx">dnsDomainIs</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">mtv.fi</span><span class="dl">"</span><span class="p">)</span> <span class="o">||</span>
+      <span class="nx">dnsDomainIs</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ruutu.fi</span><span class="dl">"</span><span class="p">))</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">FI_HEL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// MADRID</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">shExpMatch</span><span class="p">(</span><span class="nx">host</span><span class="p">,</span> <span class="dl">"</span><span class="s2">*.es</span><span class="dl">"</span><span class="p">))</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">ES_MAD</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// If nothing matches then connect without proxy</span>
+  <span class="k">else</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="dl">"</span><span class="s2">DIRECT</span><span class="dl">"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>Browser will check the host and see if it matches any condiditions defined in PAC file. In our example PAC all connections to domain <a href="https://ip-lookup.net/">ip-lookup.net</a> will go through New York node, <a href="https://whatismyipaddress.com/">whatismyipaddress.com</a> goes through London, <a href="https://www.whatismyip.com/">whatismyip.com</a>, <a href="https://yle.fi/">yle.fi</a>, <a href="https://www.mtv.fi/">mtv.fi</a> and <a href="https://www.ruutu.fi/">ruutu.fi</a> goes through Helsinki and all domains ending in “.es” will go through Madrid node. Everything else goes directly through your internet connection.</p>
+
+<p><img src="/assets/images/connection-graph.svg" alt="Connection graph" /></p>
+
+<p>Now all you need to do is upload your PAC file to HTTP webserver and add the URL to your browser/OS proxy settings. You can do this in Firefox by going to Settings -&gt; Network -&gt; Automatic proxy configuration URL -&gt; http://webserver/proxy.pac</p>
+
+    </section>
+</article>
+        </main>
+        <footer class="footer-contact">
+    <a href="mailto:niko@loju.fi"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg></a>
+    <a href="/feed.xml"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg></a>
+</footer>
+    </div>
+  </body>
+</html>
