@@ -3,28 +3,28 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bypassing Geo Blocks With Mullvad Proxies</title>
+    <title>Split Tunneling Websites With Mullvad</title>
     <link rel="stylesheet" href="/assets/css/styles.css">
     <link type="application/atom+xml" rel="alternate" href="https://blog.loju.fi/feed.xml" title="Loju" />
     <!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Bypassing Geo Blocks With Mullvad Proxies | Loju</title>
+<title>Split Tunneling Websites With Mullvad | Loju</title>
 <meta name="generator" content="Jekyll v4.2.1" />
-<meta property="og:title" content="Bypassing Geo Blocks With Mullvad Proxies" />
+<meta property="og:title" content="Split Tunneling Websites With Mullvad" />
 <meta name="author" content="Niko" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting" />
 <meta property="og:description" content="Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting" />
-<link rel="canonical" href="https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/" />
-<meta property="og:url" content="https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/" />
+<link rel="canonical" href="https://blog.loju.fi/split-tunneling-websites-with-mullvad/" />
+<meta property="og:url" content="https://blog.loju.fi/split-tunneling-websites-with-mullvad/" />
 <meta property="og:site_name" content="Loju" />
 <meta property="og:image" content="https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-04-02T14:28:00+03:00" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta property="twitter:image" content="https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg" />
-<meta property="twitter:title" content="Bypassing Geo Blocks With Mullvad Proxies" />
+<meta property="twitter:title" content="Split Tunneling Websites With Mullvad" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Niko"},"dateModified":"2022-04-02T14:28:00+03:00","datePublished":"2022-04-02T14:28:00+03:00","description":"Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting","headline":"Bypassing Geo Blocks With Mullvad Proxies","image":"https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/"},"url":"https://blog.loju.fi/bypassing-geo-blocks-with-mullvad-proxies/"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Niko"},"dateModified":"2022-04-02T14:28:00+03:00","datePublished":"2022-04-02T14:28:00+03:00","description":"Use Mullvad SOCKS5 proxies to exit from different node depending on which website you’re visiting","headline":"Split Tunneling Websites With Mullvad","image":"https://blog.loju.fi/assets/images/christian-lue-mJmYluOzx6g-unsplash.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.loju.fi/split-tunneling-websites-with-mullvad/"},"url":"https://blog.loju.fi/split-tunneling-websites-with-mullvad/"}</script>
 <!-- End Jekyll SEO tag -->
 
   </head>
@@ -38,11 +38,11 @@
         <main>
             <article>
     <header>
-        <h1>Bypassing Geo Blocks With Mullvad Proxies</h1>
+        <h1>Split Tunneling Websites With Mullvad</h1>
         <span>02 Apr 2022 - Niko</a></span>
     </header>
     <section class="blog-post">
-        <p>I recently found out about <a href="https://mullvad.net/en/help/socks5-proxy/">Mullvad SOCKS5 proxies</a>. You can connect to any wireguard node and then use SOCKS5 proxy inside that VPN tunnel to exit from different node. You can only use proxies while VPN is turned on. It seems that Mullvad has achieved this by creating a mesh that allows their every node to connect directly to each other through a VPN. This is a really useful feature! Let’s say you want to visit a website that is only allowed in UK and visit a US based website that has blocked all EU connections due to GDPR while living in Finland. You could switch VPN servers based on which website you want to connect to but that is quite cumbersome. You also might not want to route all traffic through a VPN. This is how I use Mullvad proxies and proxy auto-config (PAC) to bypass geo-blocking.</p>
+        <p>I recently found out about <a href="https://mullvad.net/en/help/socks5-proxy/">Mullvad SOCKS5 proxies</a>. You can connect to any wireguard node and then use SOCKS5 proxy inside that VPN tunnel to exit from different node. You can only use proxies while VPN is turned on. It seems that Mullvad has achieved this by creating a mesh that allows their every node to connect directly to each other through a VPN. This is a really useful feature! Let’s say you want to visit a website that is only allowed in UK and visit a US based website that has blocked all EU connections due to GDPR while living in Finland. You could switch VPN servers based on which website you want to connect to but that is quite cumbersome. You also might not want to route all traffic through a VPN. This is how I use Mullvad SOCKS5 and proxy auto-config (PAC) to split tunnel specific websites.</p>
 
 <h2 id="wireguard">Wireguard</h2>
 
@@ -95,7 +95,7 @@
 
 <p><img src="/assets/images/connection-graph.svg" alt="Connection graph" /></p>
 
-<p>Now all you need to do is upload your PAC file to HTTP webserver and add the URL to your browser/OS proxy settings. You can do this in Firefox by going to Settings -&gt; Network -&gt; Automatic proxy configuration URL -&gt; http://webserver/proxy.pac</p>
+<p>Now all you need to do is upload your PAC file to a webserver and add the URL to your browser/OS proxy settings. You can do this in Firefox by going to Settings -&gt; Network -&gt; Automatic proxy configuration URL -&gt; http://webserver/proxy.pac</p>
 
     </section>
 </article>
