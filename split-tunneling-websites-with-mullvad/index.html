@@ -51,7 +51,7 @@
 
 <h2 id="proxy-auto-config-pac">Proxy auto-config (PAC)</h2>
 
-<p>There are browser extensions that you can use instead of PAC. I went with PAC as I want to use the same rules on all my devices. PAC file is just a javascript function that determines which proxy should the request be directed to. You can find more information about PAC from <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file">MDN</a>.</p>
+<p>You can also use browser extension like <a href="https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/">FoxyProxy</a> instead of PAC. I went with PAC as I want to use the same rules on all my devices. PAC file is just a javascript function that determines which proxy should the request be directed to. You can find more information about PAC from <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file">MDN</a>.</p>
 
 <p>Now you want to choose which connections to route through Mullvad. You can find Mullvad proxy addresses from <a href="https://mullvad.net/en/servers/">servers page</a>. Click the wireguard server you want and you should be able to see <code class="language-plaintext highlighter-rouge">socks5 proxy address</code> column. For example <code class="language-plaintext highlighter-rouge">us101-wireguard</code> node has SOCKS5 service running on <code class="language-plaintext highlighter-rouge">us101-wg.socks5.mullvad.net:1080</code> address. Here is an example of PAC file:</p>
 
